@@ -1,0 +1,179 @@
+name: Validate Template Submission
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'templates/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate template structure and content
+
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Find changed template folders
+        id: changes
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep '^templates/' | sed 's|/[^/]*$||' | sort -u)
+          echo "folders=$CHANGED" >> $GITHUB_OUTPUT
+          echo "Changed folders: $CHANGED"
+
+      - name: Validate templates
+        run: |
+          ERRORS=0
+          WARNINGS=0
+
+          git fetch origin main
+          FOLDERS=$(git diff --name-only origin/main...HEAD | grep '^templates/' | sed 's|/[^/]*$||' | sort -u)
+
+          if [ -z "$FOLDERS" ]; then
+            echo "✅ No template folders changed"
+            exit 0
+          fi
+
+          for FOLDER in $FOLDERS; do
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "📁 Validating: $FOLDER"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            # Check folder is in correct category
+            CATEGORY=$(echo $FOLDER | cut -d'/' -f2)
+            VALID_CATEGORIES="payments messaging banking business-ops"
+            if echo "$VALID_CATEGORIES" | grep -qw "$CATEGORY"; then
+              echo "✅ Category '$CATEGORY' is valid"
+            else
+              echo "❌ ERROR: '$CATEGORY' is not a valid category. Use: payments, messaging, banking, business-ops"
+              ERRORS=$((ERRORS + 1))
+            fi
+
+            # Check folder name is kebab-case
+            SLUG=$(echo $FOLDER | cut -d'/' -f3)
+            if echo "$SLUG" | grep -qE '^[a-z0-9-]+$'; then
+              echo "✅ Folder name '$SLUG' uses correct kebab-case"
+            else
+              echo "❌ ERROR: Folder name '$SLUG' must be lowercase kebab-case (e.g. paystack-webhook-slack)"
+              ERRORS=$((ERRORS + 1))
+            fi
+
+            # Check required files exist
+            for FILE in workflow.json README.md preview.png; do
+              if [ -f "$FOLDER/$FILE" ]; then
+                echo "✅ $FILE exists"
+              else
+                echo "❌ ERROR: Missing required file: $FILE"
+                ERRORS=$((ERRORS + 1))
+              fi
+            done
+
+            # Validate workflow.json
+            if [ -f "$FOLDER/workflow.json" ]; then
+              # Check valid JSON
+              if node -e "JSON.parse(require('fs').readFileSync('$FOLDER/workflow.json', 'utf8'))" 2>/dev/null; then
+                echo "✅ workflow.json is valid JSON"
+              else
+                echo "❌ ERROR: workflow.json is not valid JSON"
+                ERRORS=$((ERRORS + 1))
+              fi
+
+              # Check for credential placeholders (no real keys)
+              SUSPICIOUS=$(grep -iE '(sk_live|sk_test|Bearer [a-zA-Z0-9]{20,}|"password"\s*:\s*"[^"]{8,}"|apiKey.*[a-zA-Z0-9]{32,})' "$FOLDER/workflow.json" || true)
+              if [ -z "$SUSPICIOUS" ]; then
+                echo "✅ No suspicious credentials detected"
+              else
+                echo "❌ ERROR: Possible real credentials detected in workflow.json. Replace with YOUR_* placeholders"
+                ERRORS=$((ERRORS + 1))
+              fi
+
+              # Check for YOUR_ placeholders (good sign)
+              PLACEHOLDERS=$(grep -c "YOUR_" "$FOLDER/workflow.json" || echo "0")
+              if [ "$PLACEHOLDERS" -gt 0 ]; then
+                echo "✅ Found $PLACEHOLDERS credential placeholder(s)"
+              else
+                echo "⚠️  WARNING: No YOUR_* placeholders found. Make sure all credentials are properly masked"
+                WARNINGS=$((WARNINGS + 1))
+              fi
+
+              # Check has name field
+              if node -e "const w=JSON.parse(require('fs').readFileSync('$FOLDER/workflow.json','utf8')); if(!w.name) throw new Error('missing name')" 2>/dev/null; then
+                echo "✅ workflow.json has a name field"
+              else
+                echo "❌ ERROR: workflow.json missing 'name' field"
+                ERRORS=$((ERRORS + 1))
+              fi
+
+              # Check has nodes
+              NODE_COUNT=$(node -e "const w=JSON.parse(require('fs').readFileSync('$FOLDER/workflow.json','utf8')); console.log((w.nodes||[]).length)" 2>/dev/null || echo "0")
+              if [ "$NODE_COUNT" -ge 3 ]; then
+                echo "✅ workflow.json has $NODE_COUNT nodes (minimum 3)"
+              else
+                echo "❌ ERROR: workflow.json must have at least 3 nodes (found $NODE_COUNT)"
+                ERRORS=$((ERRORS + 1))
+              fi
+            fi
+
+            # Validate README.md
+            if [ -f "$FOLDER/README.md" ]; then
+              README=$(cat "$FOLDER/README.md")
+
+              for SECTION in "What this does" "Prerequisites" "Setup" "How it works"; do
+                if echo "$README" | grep -q "$SECTION"; then
+                  echo "✅ README has '$SECTION' section"
+                else
+                  echo "❌ ERROR: README missing required section: '$SECTION'"
+                  ERRORS=$((ERRORS + 1))
+                fi
+              done
+
+              # Check README length
+              WORD_COUNT=$(wc -w < "$FOLDER/README.md")
+              if [ "$WORD_COUNT" -ge 100 ]; then
+                echo "✅ README has $WORD_COUNT words (sufficient detail)"
+              else
+                echo "⚠️  WARNING: README seems short ($WORD_COUNT words). Add more detail to help users set up the template"
+                WARNINGS=$((WARNINGS + 1))
+              fi
+            fi
+
+            # Check preview.png size
+            if [ -f "$FOLDER/preview.png" ]; then
+              SIZE=$(wc -c < "$FOLDER/preview.png")
+              if [ "$SIZE" -gt 10000 ]; then
+                echo "✅ preview.png exists and has content ($SIZE bytes)"
+              else
+                echo "⚠️  WARNING: preview.png seems very small ($SIZE bytes). Make sure it's a real screenshot"
+                WARNINGS=$((WARNINGS + 1))
+              fi
+            fi
+
+          done
+
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "📊 VALIDATION SUMMARY"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ Errors: $ERRORS"
+          echo "⚠️  Warnings: $WARNINGS"
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo ""
+            echo "❌ Validation FAILED. Please fix the errors above before this PR can be merged."
+            echo "📖 See CONTRIBUTING.md for detailed submission requirements."
+            exit 1
+          else
+            echo ""
+            echo "✅ Validation PASSED! This template is ready for review."
+            if [ "$WARNINGS" -gt 0 ]; then
+              echo "💡 Consider addressing the warnings above to improve template quality."
+            fi
+          fi
