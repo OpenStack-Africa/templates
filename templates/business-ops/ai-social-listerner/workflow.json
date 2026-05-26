@@ -1,0 +1,523 @@
+{
+  "name": "AI SOCIAL LISTENER",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c97d3137-1847-44bc-9ef7-fee51f110793",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "searchText": "n8n",
+        "limit": 10,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2a09054b-3dfe-4c59-adf3-fc5a284e4bff",
+      "name": "X",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "RUBgnkjLPc9dfyOU",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ef3170fb-d9ea-46ed-9121-01cd29220e63",
+              "leftValue": "={{ $json.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "0f185748-cc10-4646-882b-53efdee53410",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "75dd23c5-1c82-4064-ba85-1d89615feb90",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appwYiW53WrftBnBA",
+          "mode": "list",
+          "cachedResultName": "Brand Mentions ",
+          "cachedResultUrl": "https://airtable.com/appwYiW53WrftBnBA"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl0iWvMZsAkEzIU9",
+          "mode": "list",
+          "cachedResultName": "Brand Mention",
+          "cachedResultUrl": "https://airtable.com/appwYiW53WrftBnBA/tbl0iWvMZsAkEzIU9"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Content": "={{ $('X').item.json.text }}",
+            "Platform": "Twitter",
+            "Timestamp": "={{ $('Schedule Trigger').item.json.timestamp }}",
+            "URL": "={{ $('X').item.json.edit_history_tweet_ids }}{{ $('X').item.json.id }}",
+            "Reply": "={{ $json.text }}",
+            "Response Status": "posted",
+            "UserName": "={{ $('X').item.json.text }}",
+            "Sentiment": "={{ $('sentiment analysts').item.json.message.content.sentiment }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "UserName",
+              "displayName": "UserName",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Content",
+              "displayName": "Content",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Platform",
+              "displayName": "Platform",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "options": [],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Reply",
+              "displayName": "Reply",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Response Status",
+              "displayName": "Response Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2352,
+        32
+      ],
+      "id": "9ac91c7d-0565-45ff-91fb-a70b761f9011",
+      "name": "Airtable",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "bB3jGH1Xr704TVX5",
+          "name": "Airtable Personal Access Token account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1808,
+        0
+      ],
+      "id": "260cfc29-e586-476e-a9ab-1f0d2bd85496",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analyze the sentiment of the following text: {{ $json.text }}. Return a JSON object with sentiment (positive, neutral, negative) and 'confidence' (0 to 5). only output two  structured separate  fields: sentiment and confidence "
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        704,
+        32
+      ],
+      "id": "29afb51e-8cf9-495b-b2a2-8a3fe154cb52",
+      "name": "sentiment analysts",
+      "credentials": {
+        "openAiApi": {
+          "id": "L8jaMQf4d6zbzniL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Generate a reply for a {{ $json.message.content }} tweet about our brand: '{{ $('X').item.json.text }}'. Keep it professional, concise, and platform-appropriate. For positive: thank and engage; for neutral: clarify or engage; for negative: empathetic support with contact info."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1408,
+        0
+      ],
+      "id": "5298a70d-2b14-49fc-b9f3-fe610975e03f",
+      "name": "Generate reply",
+      "credentials": {
+        "openAiApi": {
+          "id": "L8jaMQf4d6zbzniL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.message.content + \" (\" + $now.format('YYYY-MM-DD HH:mm:ss') + \")\" }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        2080,
+        32
+      ],
+      "id": "8d803dbd-f20c-4cdc-8091-24aa6932c605",
+      "name": "post",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "RUBgnkjLPc9dfyOU",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3b855e9a-4304-470b-b49f-54ad9894281b",
+              "leftValue": "={{ $json.message.content.sentiment }}",
+              "rightValue": "=negative",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "5faaab24-187f-42e8-bbd4-5ad88331716b",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1168,
+        -16
+      ],
+      "id": "e3fa2439-24f7-408d-8304-acc3dc2629ee",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "sendTo": "donjizzuofficial@gmail.com",
+        "subject": "=Negative mention detected! ",
+        "emailType": "text",
+        "message": "=Negative mention detected! username: {{ $('X').item.json.text }} sentiment:{{ $('sentiment analysts').item.json.message.content.sentiment }} confidence: {{ $('sentiment analysts').item.json.message.content.confidence }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        -320
+      ],
+      "id": "692e431c-ec73-4c86-879f-4ec074335bb9",
+      "name": "Gmail",
+      "webhookId": "01fb245c-a6a4-43a3-8405-cfcd6e94b2e1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Z56pEOmz4tl91uLj",
+          "name": "Gmail account 6"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "X",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "X": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "sentiment analysts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sentiment analysts": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate reply": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "post": {
+      "main": [
+        [
+          {
+            "node": "Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "306603bc-22e2-43a3-a7af-c0c0817db62f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6fb639298be443e844be3206b20ad7955a5b5bab10f6930c436a39138d726f19"
+  },
+  "id": "eB5O9IQH3YDfhKvH",
+  "tags": []
+}
