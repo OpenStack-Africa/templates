@@ -1,0 +1,657 @@
+{
+  "name": "AI BLOG POST AND OPTIMIZATION",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        -32
+      ],
+      "id": "b930ce6d-1caa-4102-a3cf-8cca30465f22",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0",
+          "mode": "list",
+          "cachedResultName": "Blog Automation Data ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 918820793,
+          "mode": "list",
+          "cachedResultName": "blog lifecycle ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0/edit#gid=918820793"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Topic": "={{ $('GET TOPICS').item.json['Topic '] }}",
+            "Outline": "={{ $('GENERATE OUTLINE').item.json.message.content }}",
+            "Date": "={{ $('GET TOPICS').item.json['Date Added '] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Outline",
+              "displayName": "Outline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Content",
+              "displayName": "Post Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Published URL",
+              "displayName": "Published URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pageviews",
+              "displayName": "Pageviews",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time on Page",
+              "displayName": "Time on Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "New Topic Suggestions",
+              "displayName": "New Topic Suggestions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2448,
+        -32
+      ],
+      "id": "ecaffaa1-43f8-4154-9389-5df4bb3dbf31",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5NYITnO3SOxNkhZ4",
+          "name": "CHUKWUKAIDIBIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=you are a professional blog writer Using the following outline, write a blog post on \"{{ $json['Topic'] }}\". Make it as brief as possible 400 characters, Make it thought-provoking, insightful, and geared toward startup founders. Use storytelling, statistics, and a confident tone. Include a CTA to engage readers. Format in markdown with H1, H2, and paragraphs.\n\nOutline:\n{{ $json['Outline'] }}",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 2000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2688,
+        -32
+      ],
+      "id": "7610d9e8-367c-47b7-9003-fcb4e0311596",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "L8jaMQf4d6zbzniL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d9734076-1f40-40c0-8929-5dbb819135c4",
+              "name": "Post content",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "6816bedd-7b59-45fd-9716-ce197ffa59ed",
+              "name": "Topic",
+              "value": "={{ $('Google Sheets1').item.json.Topic }}",
+              "type": "string"
+            },
+            {
+              "id": "f8b60a63-067d-4471-92d8-c7306b3106ba",
+              "name": "Outline",
+              "value": "={{ $('Google Sheets1').item.json.Outline }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3024,
+        -32
+      ],
+      "id": "5b1a5279-14bc-427b-a970-85a3135a8c63",
+      "name": "Edit Fields1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "value": "1e5e3c84-47c4-8019-8756-d1217194a0ec",
+          "mode": "list",
+          "cachedResultName": "Blog posts",
+          "cachedResultUrl": "https://www.notion.so/1e5e3c8447c480198756d1217194a0ec"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Title|title",
+              "title": "={{ $('Edit Fields1').item.json.Topic }}"
+            },
+            {
+              "key": "Content |rich_text",
+              "textContent": "={{ $json[\"Post content\"] }}"
+            },
+            {
+              "key": "Outline|rich_text",
+              "textContent": "={{ $json.Outline }}"
+            },
+            {
+              "key": "Date|date",
+              "date": "={{ $('GET TOPICS').item.json['Date Added '] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2.2,
+      "position": [
+        3296,
+        -48
+      ],
+      "id": "9e14ed79-df34-4e0c-b9b8-4f0c0e3de9bd",
+      "name": "Notion",
+      "credentials": {
+        "notionApi": {
+          "id": "VPKsb1Dv48geVUui",
+          "name": "Notion account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0",
+          "mode": "list",
+          "cachedResultName": "Blog Automation Data ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 918820793,
+          "mode": "list",
+          "cachedResultName": "blog lifecycle ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0/edit#gid=918820793"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Outline",
+              "displayName": "Outline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Post Content",
+              "displayName": "Post Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Published URL",
+              "displayName": "Published URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pageviews",
+              "displayName": "Pageviews",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time on Page",
+              "displayName": "Time on Page",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "New Topic Suggestions",
+              "displayName": "New Topic Suggestions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3952,
+        -32
+      ],
+      "id": "36e80534-be18-4a88-811a-e6c67ebf888e",
+      "name": "Google Sheets2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5NYITnO3SOxNkhZ4",
+          "name": "CHUKWUKAIDIBIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0",
+          "mode": "list",
+          "cachedResultName": "Blog Automation Data ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "blog topics ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/17uYJpxtqrvbj4jsJahA7Z_BUBee9tqi122H-MUEAiX0/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1648,
+        -32
+      ],
+      "id": "ccc9a4e4-38ce-4402-b68f-2a183a551099",
+      "name": "GET TOPICS",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5NYITnO3SOxNkhZ4",
+          "name": "CHUKWUKAIDIBIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=you are an expert blogger Generate a blog post outline for an article on {{ $json['Topic '] }} please make it brief, less than 150 words. Start with a strong hook, include 3-4 compelling arguments or examples, and end with a clear takeaway or CTA. Format as markdown with H1, H2, and bullet points.No hastags and asterics no dash.",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1872,
+        -32
+      ],
+      "id": "b25308b7-8688-41a8-8255-fe5564db383d",
+      "name": "GENERATE OUTLINE",
+      "alwaysOutputData": true,
+      "credentials": {
+        "openAiApi": {
+          "id": "L8jaMQf4d6zbzniL",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "edbef105-20c2-4b7d-8019-3b494c5de45c",
+              "name": "Outline",
+              "value": "={{ $json.message.content }}{{ $json.index }}",
+              "type": "string"
+            },
+            {
+              "id": "37df5889-279c-43b0-95f5-6780207f7d66",
+              "name": "",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2224,
+        -32
+      ],
+      "id": "9ea59e8a-887a-4bb0-907e-10aba6ab96e3",
+      "name": "STORE CONTENT ",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35af5e77-b369-467a-9d33-8d2c90785d83",
+              "name": "url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "fdd5e2fa-898b-4a05-aec0-98480b02f01e",
+              "name": "Post content",
+              "value": "={{ $('Edit Fields1').item.json[\"Post content\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "5006f3b4-e2da-4a58-9148-f75c9c8cae5c",
+              "name": "Topic",
+              "value": "={{ $('Edit Fields1').item.json.Topic }}",
+              "type": "string"
+            },
+            {
+              "id": "1661e4b0-daa2-4a13-8e75-2cf69ee272ab",
+              "name": "Outline",
+              "value": "={{ $('Edit Fields1').item.json.Outline }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3504,
+        -48
+      ],
+      "id": "50cb6775-6467-496b-9c22-8916efa1827b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "person": "5wFHcTpW4o",
+        "text": "={{ $json[\"Post content\"] }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        3824,
+        -224
+      ],
+      "id": "7329672b-f848-4a7d-89bd-36b0cd3d3559",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "Q4xaGdxMVZlwUMic",
+          "name": "Chuka LinkedIn account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "GET TOPICS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notion": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET TOPICS": {
+      "main": [
+        [
+          {
+            "node": "GENERATE OUTLINE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GENERATE OUTLINE": {
+      "main": [
+        [
+          {
+            "node": "STORE CONTENT ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STORE CONTENT ": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a post": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "463f3e0e-59d4-4d36-b330-269e6f78d979",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6fb639298be443e844be3206b20ad7955a5b5bab10f6930c436a39138d726f19"
+  },
+  "id": "4pjqfXzt7a9F6xzA",
+  "tags": []
+}
